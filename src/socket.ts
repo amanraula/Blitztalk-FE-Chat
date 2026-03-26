@@ -4,9 +4,9 @@ const socket: Socket = io("https://blitztalk-server.onrender.com/", {
   transports: ["websocket"],
 });
 
+// const socket: Socket = io("http://localhost:3000", {
+//   transports: ["websocket"],
+// });
+
 export default socket;
-// import { io } from "socket.io-client";
 
-// const socket = io("http://localhost:3000");
-
-// export default socket;
