@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import socket from "./socket";
 import { ChatMessage, MediaItem } from "./types";
 import "./style.css";
-import { Analytics } from "@vercel/analytics/next"
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 const SUPABASE_BUCKET = import.meta.env.VITE_SUPABASE_BUCKET || "blitztalk-media";
@@ -66,27 +66,27 @@ const App = () => {
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [activeUploadName, setActiveUploadName] = useState<string | null>(null);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
-const [isDarkMode, setIsDarkMode] = useState(() => {
-    
-        
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved === 'dark';
-    return false; // Always start in light mode (false = light, true = dark)
-});
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+
+
+        const saved = localStorage.getItem('theme');
+        if (saved) return saved === 'dark';
+        return false; // Always start in light mode (false = light, true = dark)
+    });
     const [showScrollButton, setShowScrollButton] = useState(false);
 
     const chatLogRef = useRef<HTMLDivElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
     const shouldAutoScrollRef = useRef(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
-     useEffect(() => {
-    if (!connected) return;
+    useEffect(() => {
+        if (!connected) return;
 
-    const r = getInitialRoom(); // from URL
-    socket.emit("join-room", r);
-    setJoined(true);
-    setActiveRoom(r || "Global");
-}, [connected]);
+        const r = getInitialRoom(); // from URL
+        socket.emit("join-room", r);
+        setJoined(true);
+        setActiveRoom(r || "Global");
+    }, [connected]);
 
     // Theme handling
     useEffect(() => {
@@ -99,15 +99,15 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
         socket.on("disconnect", () => setConnected(false));
 
         socket.on("receive-message", (data) => {
-    if (data.name === name) return; // 👈 prevent self-echo
-    const media = decodeMediaMessage(data.message);
-    if (media) {
-        setMediaItems(prev => [media, ...prev]);
-        setMessages(prev => [...prev, { name: data.name, message: `File uploaded by ${data.name}`, self: false, kind: "media", media }]);
-        return;
-    }
-    setMessages(prev => [...prev, { ...data, self: false, kind: "text" }]);
-});
+            if (data.name === name) return; // 👈 prevent self-echo
+            const media = decodeMediaMessage(data.message);
+            if (media) {
+                setMediaItems(prev => [media, ...prev]);
+                setMessages(prev => [...prev, { name: data.name, message: `File uploaded by ${data.name}`, self: false, kind: "media", media }]);
+                return;
+            }
+            setMessages(prev => [...prev, { ...data, self: false, kind: "text" }]);
+        });
 
 
         return () => {
@@ -118,29 +118,29 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
     }, []);
 
     useEffect(() => {
-    const chat = chatLogRef.current;
-    if (!chat) return;
+        const chat = chatLogRef.current;
+        if (!chat) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = chat;
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 120;
+        const { scrollTop, scrollHeight, clientHeight } = chat;
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 120;
 
-    if (isNearBottom) {
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-}, [messages]);
+        if (isNearBottom) {
+            chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
 
     // Scroll handler for "new messages" button
-   const handleScroll = () => {
-    const el = chatLogRef.current;
-    if (!el) return;
+    const handleScroll = () => {
+        const el = chatLogRef.current;
+        if (!el) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = el;
-    const isAtBottom = scrollHeight - scrollTop - clientHeight < 80;
+        const { scrollTop, scrollHeight, clientHeight } = el;
+        const isAtBottom = scrollHeight - scrollTop - clientHeight < 80;
 
-    shouldAutoScrollRef.current = isAtBottom;
-    setShowScrollButton(!isAtBottom);
-};
+        shouldAutoScrollRef.current = isAtBottom;
+        setShowScrollButton(!isAtBottom);
+    };
 
 
     const scrollToBottom = () => {
@@ -148,15 +148,15 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
     };
 
     const joinRoom = () => {
-    const r = room.trim();
+        const r = room.trim();
 
-    setMessages([]);       // clear ONLY on manual room switch
-    socket.emit("join-room", r);
+        setMessages([]);       // clear ONLY on manual room switch
+        socket.emit("join-room", r);
 
-    setActiveRoom(r || "Global");
-    updateUrlRoom(r);
-    setJoined(true);
-};
+        setActiveRoom(r || "Global");
+        updateUrlRoom(r);
+        setJoined(true);
+    };
 
 
 
@@ -321,7 +321,7 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
     const supabaseReady = Boolean(SUPABASE_URL && SUPABASE_KEY && SUPABASE_BUCKET);
 
     return (
-        <div className="app-container" style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+        <div className="app-container">
             {/* Header */}
             <header className="navbar" style={{ flexShrink: 0, zIndex: 1 }}>
                 <div className="nav-brand">
@@ -351,19 +351,19 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
                         <span className="media-label">Media</span>
                         <span className="media-count">{filteredMedia.length}</span>
                     </button>
-                    <button 
-                        className="theme-toggle" 
+                    <button
+                        className="theme-toggle"
                         onClick={toggleTheme}
                         aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
                     >
                         {isDarkMode ? (
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="5"/>
-                                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                                <circle cx="12" cy="12" r="5" />
+                                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                             </svg>
                         ) : (
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                             </svg>
                         )}
                     </button>
@@ -401,7 +401,7 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
                         <div className="empty-state">
                             <div className="empty-illustration">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                                 </svg>
                             </div>
                             <h3 className="empty-title">Start the conversation</h3>
@@ -414,8 +414,8 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
                                 const copyValue = isMedia && m.media ? m.media.url : (m.self ? m.message : `${m.name}: ${m.message}`);
 
                                 return (
-                                    <div 
-                                        key={i} 
+                                    <div
+                                        key={i}
                                         className={`message-group ${m.self ? "sent" : "received"} ${copied === i ? "highlighted" : ""}`}
                                     >
                                         {!m.self && (
@@ -648,16 +648,16 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
                             value={room}
                             onChange={(e) => setRoom(e.target.value)}
                             onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault();
-                                joinRoom();
-                            }
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    joinRoom();
+                                }
                             }}
 
                             className="input-field"
                         />
                     </div>
-                    
+
                     <div className="input-group name-group">
                         <label htmlFor="name-input">Name</label>
                         <input
@@ -669,8 +669,8 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
                         />
                     </div>
 
-                    <button 
-                        onClick={joinRoom} 
+                    <button
+                        onClick={joinRoom}
                         className={`action-btn join-btn ${joined ? "active" : ""}`}
                     >
                         {joined ? "Joined" : "Join"}
@@ -740,8 +740,8 @@ const [isDarkMode, setIsDarkMode] = useState(() => {
                     </div>
                 )}
             </footer>
-            <Analytics />
-            
+
+
         </div>
     );
 };
