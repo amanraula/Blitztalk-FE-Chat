@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./style.css";
 
-const API_BASE = "https://blitztalk-server.onrender.com";
+const API_BASE = "https://blitztalk.in/";
 
 interface Room {
   name: string;
