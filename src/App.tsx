@@ -225,8 +225,8 @@ const App = () => {
     };
 
     const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
 
         if (!SUPABASE_URL || !SUPABASE_KEY || !SUPABASE_BUCKET) {
             setUploadError("Supabase env vars missing. Add VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SUPABASE_BUCKET.");
@@ -236,31 +236,35 @@ const App = () => {
         if (!joined) joinRoom();
 
         setUploading(true);
-        setUploadProgress(0);
         setUploadError(null);
-        setActiveUploadName(file.name);
 
         const roomName = getRoomName();
-        const safeName = file.name.replace(/[^\w.-]+/g, "_");
-        const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-        const path = `${roomName}/${id}-${safeName}`;
 
         try {
-            await uploadFileWithProgress(file, path);
-            const now = Date.now();
-            const mediaItem: MediaItem = {
-                id,
-                name: file.name,
-                url: buildPublicUrl(path),
-                type: file.type || "application/octet-stream",
-                size: file.size,
-                uploadedAt: now,
-                room: roomName,
-                uploader: name
-            };
+            for (const file of files) {
+                setUploadProgress(0);
+                setActiveUploadName(file.name);
 
-            addMediaMessage(mediaItem, true);
-            socket.emit("chat-message", room.trim(), name, encodeMediaMessage(mediaItem));
+                const safeName = file.name.replace(/[^\w.-]+/g, "_");
+                const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+                const path = `${roomName}/${id}-${safeName}`;
+
+                await uploadFileWithProgress(file, path);
+                const now = Date.now();
+                const mediaItem: MediaItem = {
+                    id,
+                    name: file.name,
+                    url: buildPublicUrl(path),
+                    type: file.type || "application/octet-stream",
+                    size: file.size,
+                    uploadedAt: now,
+                    room: roomName,
+                    uploader: name
+                };
+
+                addMediaMessage(mediaItem, true);
+                socket.emit("chat-message", room.trim(), name, encodeMediaMessage(mediaItem));
+            }
         } catch (error) {
             setUploadError(error instanceof Error ? error.message : "Upload failed");
         } finally {
@@ -682,6 +686,7 @@ const App = () => {
                         <input
                             ref={fileInputRef}
                             type="file"
+                            multiple
                             className="file-input"
                             onChange={handleFileChange}
                         />
